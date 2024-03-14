@@ -442,10 +442,12 @@ void main(void)
 			waitms(200);
 			j=readADC(ADC_CHSELR_CHSEL8);
 			a=(j*3.3)/0x1000;
-			sprintf(lcd_buff,"R=%5.0f%c %c:%d", 1000*(3.3/a -1) 
+			sprintf(lcd_buff,"R=%5.0f%c %c%c%d", 1000*(3.3/a -1) 
 											  , 0b11110100
 											  , (LED_state == 3) ? 'b' : (LED_state == 2) ? 'g' : (LED_state == 1) ? 'r' : ' '
-											  , (LED_state == 3) ? pwm5 : (LED_state == 2) ? pwm4 : (LED_state == 1) ? pwm3 : ' ');
+											  , (LED_state == 0) ? ' ' : ':'
+											  , (LED_state == 3) ? pwm5 : (LED_state == 2) ? pwm4 : (LED_state == 1) ? pwm3 : 0
+											  );
 			LCDprint(lcd_buff, 1, 1);
 		}
 		else {
