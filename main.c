@@ -405,25 +405,25 @@ void main(void)
 				f=1.0/T;
 				cap = (1.44/(f*(5000*3)));
 				if (cap <= 0.000000002) {
-					if (pb == 0) {
+					if (pb == 1) {
 						sprintf(lcd_buff, "Cap: %.3fnF", cap*1000000000);
 					}
 					else {
-						sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
+						sprintf(lcd_buff, "Cap: %.6fuF", cap*1000000);
 					}
 					LCDprint(lcd_buff, 2, 1);
 				}
 				if (cap > 0.000000002 && cap <= 0.000001) {
-					if (pb == 0) {
+					if (pb == 1) {
 						sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
 					}
 					else {
-						sprintf(lcd_buff, "Cap: %.3fmF", cap*1000);
+						sprintf(lcd_buff, "Cap: %.3fnF", cap*1000000000);
 					}
 					LCDprint(lcd_buff, 2, 1);
 				}
 				if (cap > 0.000001 && cap <= 0.001) {
-					if (pb == 0) {
+					if (pb == 1) {
 						sprintf(lcd_buff, "Cap: %.3fmF", cap*1000);
 					}
 					else {
@@ -458,4 +458,3 @@ void main(void)
 	
 	}
 }
-
