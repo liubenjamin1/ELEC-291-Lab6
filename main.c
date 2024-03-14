@@ -201,6 +201,8 @@ void main(void)
 	float a;
 	int j;
 	int LED_state = 2;
+	int current, previous;
+
 	Configure_Pins();
 	LCD_4BIT();
 	Hardware_Init();
@@ -213,6 +215,11 @@ void main(void)
 	GPIOA->PUPDR |= BIT16; 
 	GPIOA->PUPDR &= ~(BIT17); 
 
+	GPIOA->MODER &= ~(BIT22 | BIT23); // Make pin PA11 input
+	// Activate pull up for pin PA11:
+	GPIOA->PUPDR |= BIT22; 
+	GPIOA->PUPDR &= ~(BIT23); 
+
 	// Configure PA15, PA14, PA13, and PA12 as inputs with pull-up resistors
 	GPIOA->MODER &= ~(BIT30 | BIT28 | BIT26 | BIT24); // Clear mode bits for PA15, PA14, PA13, and PA12
 	GPIOA->PUPDR |= (BIT30 | BIT28 | BIT26 | BIT24);  // Set pull-up mode for PA15, PA14, PA13, and PA12
@@ -223,12 +230,17 @@ void main(void)
 	      //"Connect signal to PA8 (pin 18).\r\n");
 	LCDprint("LCD 4-bit test:", 1, 1);
 	LCDprint("Hello, World!", 2, 1);
+
+	previous=(GPIOA->IDR&BIT11)?0:1;
+
 	while(1) {
 
 		int s1 = (GPIOA->IDR & BIT15) ? 1 : 0; // Read PA15
-		int s2 = (GPIOA->IDR & BIT14) ? 1 : 0; // z PA14
+		int s2 = (GPIOA->IDR & BIT14) ? 1 : 0; // Read PA14
 		int s3 = (GPIOA->IDR & BIT13) ? 1 : 0; // Read PA13
 		int s4 = (GPIOA->IDR & BIT12) ? 1 : 0; // Read PA12
+
+		int pb = (GPIOA->IDR & BIT11) ? 1 : 0; // Read PA11
 
 		// LED_state = 0 means change nothing
 		// LED_state = 1 means change red
@@ -379,6 +391,13 @@ void main(void)
 			}
 		}
 
+		// pushbutton
+		current=(GPIOA->IDR&BIT11)?1:0;
+		if(current!=previous)
+		{
+			previous=current;
+		}
+
 		if (s4 == 1 && s3 == 0 && s2 == 1 && s1 == 0) {
 			count=GetPeriod(100);
 			if(count>0 && f < 120000) {
@@ -386,15 +405,30 @@ void main(void)
 				f=1.0/T;
 				cap = (1.44/(f*(5000*3)));
 				if (cap <= 0.000000002) {
-					sprintf(lcd_buff, "Cap: %.3fnF", cap*1000000000);
+					if (pb == 0) {
+						sprintf(lcd_buff, "Cap: %.3fnF", cap*1000000000);
+					}
+					else {
+						sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
+					}
 					LCDprint(lcd_buff, 2, 1);
 				}
 				if (cap > 0.000000002 && cap <= 0.000001) {
-					sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
+					if (pb == 0) {
+						sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
+					}
+					else {
+						sprintf(lcd_buff, "Cap: %.3fmF", cap*1000);
+					}
 					LCDprint(lcd_buff, 2, 1);
 				}
 				if (cap > 0.000001 && cap <= 0.001) {
-					sprintf(lcd_buff, "Cap: %.3fmF", cap*1000);
+					if (pb == 0) {
+						sprintf(lcd_buff, "Cap: %.3fmF", cap*1000);
+					}
+					else {
+						sprintf(lcd_buff, "Cap: %.3fuF", cap*1000000);
+					}
 					LCDprint(lcd_buff, 2, 1);
 				}
 			}
